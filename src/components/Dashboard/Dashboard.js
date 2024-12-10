@@ -21,6 +21,7 @@ import {
 import "chart.js/auto";
 import LoadingAnimation from "../Loading/LoadingAnimation";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import AIChatBot from "../AI/Chatbox";
 
 Chart.register(...registerables);
 
@@ -337,6 +338,7 @@ const Dashboard = () => {
     <div className="main-container">
       {(loading || isStoreDataLoading) && <LoadingAnimation />}
       {/* Dashboard Header */}
+      <AIChatBot />
       <div className="flex justify-end items-center space-x-4">
         <div className=" rounded-md px-2 py-2 bg-[#ffe4e6] flex justify-center items-center ring-1 ring-[#881337]">
           <button onClick={handleMailTrigger} className="flex">

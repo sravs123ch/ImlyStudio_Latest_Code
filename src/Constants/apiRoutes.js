@@ -100,8 +100,7 @@ export const getTasksForUser=`${BASE_URL}/orderhistory/getTasksForUser`;
 
 export const TaskStatusUpdate=`${BASE_URL}/orderhistory/updateProgressStatus`;
 
-// /api/orderhistory/getTasksForUser/3?OntimeorDelay=2
-
+export const ChatBox=`${BASE_URL}/auth/chat`;
 
 export const HolidaysList=`${BASE_URL}/holidayCalender/listHolidays`;
 
