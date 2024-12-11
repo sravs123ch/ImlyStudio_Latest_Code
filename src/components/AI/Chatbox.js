@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { FiMessageSquare } from "react-icons/fi";
 import { ChatBox } from "../../Constants/apiRoutes"; // Import API route
+import { RiCloseLine } from "react-icons/ri";
+import { FiChevronDown } from "react-icons/fi"; 
 
 const AIChatBot = () => {
   const [userInput, setUserInput] = useState("");
@@ -96,12 +98,25 @@ const AIChatBot = () => {
     <>
       {/* AI Icon */}
       <div className="fixed bottom-6 right-6 z-50">
-        <button
+        {/* <button
           onClick={toggleChatBox}
           className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600"
         >
           <FiMessageSquare size={24} />
-        </button>
+        </button> */}
+        <div className="fixed bottom-6 right-6 z-50">
+  <button
+    onClick={toggleChatBox}
+    className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600"
+  >
+    {isChatOpen ? (
+     <FiChevronDown size={24} /> 
+    ) : (
+      <FiMessageSquare size={24} /> 
+    )}
+  </button>
+</div>
+
       </div>
 
       {/* Chatbox */}
@@ -109,12 +124,14 @@ const AIChatBot = () => {
         <div className="fixed bottom-16 right-6 w-96 p-4 bg-white border rounded-lg shadow-lg z-50 flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-bold">AI Chat Assistant</h2>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="text-xl font-bold text-white bg-red-500 rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-            >
-              ×
-            </button>
+         
+ {/* <button
+                           onClick={() => setIsChatOpen(false)}
+                            className="absolute top-2 right-2 flex items-center justify-center text-red-600 bg-red-50 rounded-md hover:bg-red-100 p-2"
+                        >
+                            <RiCloseLine size={18} />
+                        </button> */}
+
           </div>
 
           {/* Messages */}
