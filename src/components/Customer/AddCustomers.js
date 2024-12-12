@@ -946,8 +946,12 @@ function AddCustomers() {
     ) {
       newErrors.PhoneNumberError = "Please enter a valid phone number.";
     }
-    if (!customerFormData.Email || !validateEmail(customerFormData.Email)) {
-      newErrors.EmailError = "Please enter a valid email.";
+    // if (!customerFormData.Email || !validateEmail(customerFormData.Email)) {
+    //   newErrors.EmailError = "Please enter a valid email.";
+    // }
+    if (!customerFormData.Email || validateEmail(customerFormData.Email)) {
+      // If email is invalid or empty, set error message
+      newErrors.EmailError = validateEmail(customerFormData.Email) || "Please enter a valid email.";
     }
     if (!selectedGender) {
       newErrors.GenderError = "Gender is required.";
@@ -964,10 +968,25 @@ function AddCustomers() {
     const phoneRegex = /^\d{10,13}$/;
     return phoneRegex.test(number);
   };
+  // const validateEmail = (email) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
+  //   return emailRegex.test(email);
+  // };
+
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
-    return emailRegex.test(email);
+    if (!email) return "Email is required.";
+    if (/\s/.test(email)) return "Email should not contain spaces.";
+    if (!email.includes("@")) return "Email must include '@'.";
+    if (!email.includes(".")) return "Email domain must include a '.'.";
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      return "Invalid email format.";
+    }
+    if (!email.endsWith("@gmail.com")) {
+      return "Email must end with '@gmail.com'.";
+    }  
+    return null;
   };
+  
 
   const validateAddressData = () => {
     setErrors({});
@@ -1407,7 +1426,7 @@ function AddCustomers() {
                       />
                     </div>
                     {/* Email */}
-                    <div>
+                    {/* <div>
                       <div className="flex  sm:items-center gap-4 w-full flex-col sm:flex-row">
                         <label className="w-1/3 text-xs font-medium text-gray-700">
                           Email <span className="text-red-500">*</span>
@@ -1431,7 +1450,30 @@ function AddCustomers() {
                           </p>
                         )}
                       </div>
-                    </div>
+                    </div> */}
+
+<div>
+  <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row">
+    <label className="w-1/3 text-xs font-medium text-gray-700">
+      Email <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="email"
+      name="Email"
+      value={customerFormData.Email}
+      onChange={handleCustomerFormChange}
+      className={`p-1 w-full border rounded-md ${errors.EmailError ? "border-red-500" : "border-gray-400"}`}
+    />
+  </div>
+  {errors.EmailError && (
+    <div className="w-full flex sm:pr-[122px] justify-start sm:justify-center sm:mr-4">
+      <p className="text-red-500 text-sm mt-1">
+        {errors.EmailError}
+      </p>
+    </div>
+  )}
+</div>
+
                  
                     {/* Gender */}
                     <div>

@@ -442,8 +442,16 @@ function Userform() {
     // if (!formData.LastName) {
     //   newErrors.LastNameError = "Last Name is required.";
     // }
+    // if (!formData.Email) {
+    //   newErrors.EmailError = "Email is required.";
+    // }
     if (!formData.Email) {
       newErrors.EmailError = "Email is required.";
+    } else {
+      // Additional check to ensure email ends with @gmail.com
+      if (!formData.Email.endsWith("@gmail.com")) {
+        newErrors.EmailError = "Email must end with '@gmail.com'.";
+      }
     }
     if (!formData.CountryID) {
       newErrors.CountryIdError = "Country is required.";
@@ -728,7 +736,7 @@ function Userform() {
             </div>
 
             {/* Email */}
-            <div>
+            {/* <div>
               <label
                 htmlFor="Email"
                 className="block text-sm font-medium text-gray-700"
@@ -751,7 +759,31 @@ function Userform() {
                   {errors.EmailError}
                 </p>
               )}
-            </div>
+            </div> */}
+             <div>
+    <label
+      htmlFor="Email"
+      className="block text-sm font-medium text-gray-700"
+    >
+      Email <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="email"
+      id="Email"
+      name="Email"
+      value={formData.Email || ""}
+      onChange={handleFormChange}
+      required
+      className={`mt-2 mb-1 block w-full xl:w-3/4 rounded-md border shadow-sm py-2 px-4 sm:text-sm ${
+        errors.EmailError ? "border-red-400" : "border-gray-400"
+      }`}
+    />
+    {errors.EmailError && (
+      <p className="text-red-500 text-sm mt-1">
+        {errors.EmailError}
+      </p>
+    )}
+  </div>
 
             <div className="flex items-center gap-4">
               <div className="w-full xl:w-3/4 ">

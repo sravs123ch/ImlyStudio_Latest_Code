@@ -6,6 +6,7 @@ import { DataContext } from "../../Context/DataContext";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { GET_TASKS, GETALLUSERS_API,getTasksForUser,TaskStatusUpdate } from "../../Constants/apiRoutes";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 import {
   Dialog,
   DialogTitle,
@@ -24,6 +25,7 @@ const Tasks = () => {
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     if (storesData) {
@@ -103,6 +105,61 @@ const Tasks = () => {
   }, []);
 
 
+  useEffect(() => {
+    console.log("Refresh triggered:", refresh); // Confirm refresh changes
+    if (refresh) {
+        fetchTasks(1, 10, "", "", "", "", selectedStatus || "");
+        setRefresh(false); // Reset refresh state
+    }
+}, [refresh, selectedStatus]);
+
+
+const handleStatusSubmit = async () => {
+    const payload = {
+        OrderHistoryID: orderHistoryID,
+        ProgressId: selectedStatus,
+    };
+
+    setLoading(true);
+
+    try {
+        // Call API to update task status
+        const response = await axios.post(TaskStatusUpdate, payload);
+        console.log("API Response:", response); // Log for debugging
+
+        // Show success toast notification
+        toast.success("Sub Status updated successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        setRefresh((prev) => !prev); // Toggle refresh state
+        setOpenDialog(false);
+    } catch (error) {
+        console.error("Error updating status:", error);
+
+        // Show error toast notification
+        toast.error("Failed to update task status. Please try again.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+    } finally {
+        setLoading(false);
+        setOpenDialog(false);
+    }
+};
+
+
 const fetchTasks = async (userId, searchTerm, selectedStore, OntimeorDelay) => {
   try {
     setLoading(true);
@@ -167,34 +224,67 @@ const searchItems = (value) => {
     setOpenDialog(true); // Open the dialog
   };
 
-  // Handle submit and API call
-  const handleStatusSubmit = async () => {
-    const payload = {
-      OrderHistoryID: orderHistoryID, // Ensure OrderID is passed correctly
-      ProgressId: selectedStatus, // Pass selected status
-    };
+//   useEffect(() => {
+//     if (refresh) {
+//         // Call fetchOrders when refresh state is true
+//         fetchTasks(1, 10, "", "", "", "",task.ProgressId|| "");
 
-    setLoading(true);
+//         // Reset refresh state to false after calling fetchOrders
+//         setRefresh(false);
+//     }
+// }, [refresh]);
+//   // Handle submit and API call
+//   const handleStatusSubmit = async () => {
+//     const payload = {
+//       OrderHistoryID: orderHistoryID, // Ensure OrderID is passed correctly
+//       ProgressId: selectedStatus, // Pass selected status
+//     };
+
+//     setLoading(true);
     
-    try {
-      const response = await axios.post( TaskStatusUpdate, payload);
-      if (response.data.success) {
-        setOpenDialog(false); // Close dialog after success
-      } 
-    } catch (error) {
-      console.error("Error updating status:", error);
-    } finally {
-      setLoading(false);
-      setOpenDialog(false);
-      setTimeout(() => {
-        window.location.reload();
-      }, 30);
-    }
-  };
+//     try {
+//       const response = await axios.post( TaskStatusUpdate, payload);
+//       if (response.data.success) {
+//         setOpenDialog(false); // Close dialog after success
+//       } 
+//     } catch (error) {
+//       console.error("Error updating status:", error);
+//     } finally {
+//       setLoading(false);
+//       setOpenDialog(false);
+//       setTimeout(() => {
+//         window.location.reload();
+//       }, 30);
+//     }
+//   };
   
+
+// Handle submit and API call
+// const handleStatusSubmit = async () => {
+//   const payload = {
+//       OrderHistoryID: orderHistoryID, // Ensure OrderID is passed correctly
+//       ProgressId: selectedStatus, // Pass selected status
+//   };
+
+//   setLoading(true);
+
+//   try {
+//       const response = await axios.post(TaskStatusUpdate, payload);
+//       if (response.data.success) {
+//           setOpenDialog(false); // Close dialog after success
+//           setRefresh(true); // Trigger refresh state
+//       }
+//   } catch (error) {
+//       console.error("Error updating status:", error);
+//   } finally {
+//       setLoading(false);
+//       setOpenDialog(false);
+//   }
+// };
 
   return (
     <div className="main-container">
+         <ToastContainer />
       {loading && <LoadingAnimation />}
       {error && <p className="text-red-500">{error}</p>}
     <div className="fixed w-[83%] z-10 p-2 mb-10 bg-white -mt-2">

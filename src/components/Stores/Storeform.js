@@ -266,7 +266,27 @@ function StoreForm() {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
+  const validateEmail = (email) => {
+    // Check if the email is empty
+    if (!email) {
+      return "Email is required.";
+    }
+  
+    // Additional validation for email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      return "Please enter a valid email address.";
+    }
+  
+    // Check if the email ends with "@gmail.com"
+    if (!email.endsWith("@gmail.com")) {
+      return "Email must end with '@gmail.com'.";
+    }
+  
+    // Return null if no errors
+    return null;
+  };
+  
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -303,11 +323,18 @@ function StoreForm() {
         newErrors.CustomerStoreCodeError = "Customer Store Code is required.";
       }
 
-      // Additional validation for email format
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (formData.Email && !emailPattern.test(formData.Email)) {
-        return "Please enter a valid email address.";
-      }
+      // // Additional validation for email format
+      // const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // if (formData.Email && !emailPattern.test(formData.Email)) {
+      //   return "Please enter a valid email address.";
+      // }
+
+      // Email Validation (using validateEmail function)
+  const emailError = validateEmail(formData.Email);
+  if (emailError) {
+    newErrors.EmailError = emailError;
+  }
+      
 
       // Additional validation for phone number format (example: must be 10 digits)
       const phonePattern = /^\d{10,13}$/;
@@ -767,7 +794,7 @@ function StoreForm() {
                     </div>
                   </div>
 
-                  <div>
+                  {/* <div>
                      <div className="flex  flex-col gap-1">
                       <label className="w-1/3 text-xs font-medium text-gray-700">
                         Email <span className="text-red-500">*</span>
@@ -789,7 +816,33 @@ function StoreForm() {
                         {errors.EmailError}
                       </p>
                     )}
-                  </div>
+                  </div> */}
+
+<div>
+  <div className="flex flex-col gap-1">
+    <label className="w-1/3 text-xs font-medium text-gray-700">
+      Email <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      name="Email"
+      value={formData.Email}
+      onChange={handleFormChange}
+      className={`p-1 mt-2 mb-1 w-4/5 border rounded-md ${
+        errors.EmailError ? "border-red-400" : "border-gray-400"
+      }`}
+    />
+  </div>
+
+  {/* Display error message when there's an email validation error */}
+  {errors.EmailError && (
+    <p className="text-red-500 text-sm mt-1">
+      {errors.EmailError}
+    </p>
+  )}
+</div>
+
+
                   <div>
                      <div className="flex  flex-col gap-1">
                       <label className="w-1/3 text-xs font-medium text-gray-700">

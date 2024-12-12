@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 
 import axios from "axios";
 
@@ -100,6 +100,7 @@ const Profile = () => {
   const [stateMap, setStateMap] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showPasswordForm , setShowPasswordForm ] = useState(false);
 
   const [cityMap, setCityMap] = useState({});
 
@@ -122,6 +123,49 @@ const Profile = () => {
   const [filteredCities, setFilteredCities] = useState([]);
   const { userId } = useParams();
 
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  // const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState("");
+  const fileInputRef = useRef(null);
+  const [profileImage, setProfileImage] = useState(null);
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "oldPassword") setOldPassword(value);
+    if (name === "newPassword") setNewPassword(value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let formErrors = {};
+  
+    if (!formData.oldPassword) {
+      formErrors.oldPassword = "Old password is required.";
+    }
+  
+    if (!formData.newPassword) {
+      formErrors.newPassword = "New password is required.";
+    }
+  
+    if (formData.confirmPassword !== formData.newPassword) {
+      formErrors.confirmPassword = "Passwords do not match.";
+    }
+  
+    setErrors(formErrors);
+  
+    if (Object.keys(formErrors).length === 0) {
+      // Submit logic here
+      console.log("Form submitted successfully!");
+    }
+  };
+  
+
+  // Handle modal close
+  const handleClose = () => {
+    setShowPasswordForm(false);
+  };
   useEffect(() => {
     if (countriesData && statesData && citiesData) {
       setCountries(countriesData.data || []);
@@ -171,15 +215,15 @@ const Profile = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        ProfileImage: file,
-      });
-    }
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setFormData({
+  //       ...formData,
+  //       ProfileImage: file,
+  //     });
+  //   }
+  // };
 
   const [selectedGender, setSelectedGender] = useState(formData.Gender || "");
   const [isLoading, setIsLoading] = useState(false);
@@ -195,6 +239,24 @@ const Profile = () => {
   const [selectedRole, setSelectedRole] = useState(formData.RoleID || "");
   const [editMode, setEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Handle file change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        ProfileImage: file, // Update ProfileImage in form data
+      }));
+      setProfileImage(URL.createObjectURL(file)); // Preview selected image
+    }
+  };
+
+  // Trigger hidden file input on image click
+  // const handleImageClick = () => {
+  //   fileInputRef.current.click();
+  // };
+
   // const handleRoleChange = (role) => {
   //   setSelectedRole(role);
   //   setFormData((prevFormData) => ({
@@ -461,6 +523,8 @@ const Profile = () => {
     return <div>Loading...</div>;
   }
 
+  
+
   // Validation
   const validateUserData = () => {
     const newErrors = {};
@@ -575,6 +639,7 @@ const Profile = () => {
       );
 
       setLogindata(response.data.user);
+      
 
       // Set form data and dropdown selections
       setFormData({
@@ -612,6 +677,46 @@ const Profile = () => {
     setIsEditing(true); // Enable edit mode
     fetchUserDetails();  // Fetch data again
   };
+  const handleUpdatePasswordClick = () => {
+    // Fetch user details when "Update" button is clicked
+    setShowPasswordForm (true); // Enable edit mode
+    setIsEditing(false);
+    fetchUserDetails();  // Fetch data again
+  };
+
+  // Trigger file input when image is clicked
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  // Handle image change and preview
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImagePreview(reader.result); // Set image preview
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+ 
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       // Update the logindata state with the new image preview
+  //       setLogindata((prevData) => ({
+  //         ...prevData,
+  //         ProfileImage: reader.result, // Set the preview as ProfileImage
+  //       }));
+  //     };
+  //     reader.readAsDataURL(file); // Convert file to base64 for preview
+  //   }
+  // };
+
+
   return (
     
     <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:ml-10 lg:ml-56 w-auto mt-10 p-6 bg-white rounded-lg">
@@ -623,8 +728,84 @@ const Profile = () => {
       {/* User Details */}
       {logindata && (
         <>
+            {/* <img
+        src={logindata.ProfileImage}
+        alt={`${logindata.FirstName} ${logindata.LastName}`}
+        className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+        onClick={openModal} 
+      /> */}
           <div className="user-details">
-            <div className="flex items-center space-x-4 mt-4">
+            {/* <div className="flex items-center space-x-4 mt-4">
+
+<div>
+    
+    </div>
+
+    <div>
+   
+     
+      <input
+        type="file"
+        id="ProfileImage"
+        name="ProfileImage"
+        accept="image/*"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleImageChange}
+      />
+      
+
+      
+      <div className="mt-2 flex items-center">
+        <img
+          src={
+            profileImage || logindata.ProfileImage
+          }
+          // src={imagePreview || logindata.ProfileImage}
+          alt="Profile Preview"
+          className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+          onClick={handleImageClick} // Trigger upload on click
+        />
+       
+      </div>
+    </div>
+              <div>
+              {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
+          onClick={closeModal} // Close the modal when clicking outside
+        >
+          <div
+            className="relative bg-white p-4 rounded-lg"
+            onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside the modal
+          >
+            <img
+              src={logindata.ProfileImage}
+              alt={`${logindata.FirstName} ${logindata.LastName}`}
+              className="w-96 h-96 object-cover"
+            />
+<button
+  className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
+  onClick={closeModal} // Close the modal when clicking the close button
+>
+  <XMarkIcon className="w-6 h-6" /> 
+</button>
+
+          </div>
+        </div>
+      )}
+                <p className="text-lg font-bold">
+                  {logindata.FirstName} {logindata.LastName}
+                </p>
+                <p className="text-sm text-gray-500">{logindata.Email}</p>
+                <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
+              </div>
+             
+            </div> */}
+
+            {!isEditing && (
+              <div>
+  <div className="flex items-center space-x-4 mt-4">
             <img
         src={logindata.ProfileImage}
         alt={`${logindata.FirstName} ${logindata.LastName}`}
@@ -664,90 +845,28 @@ const Profile = () => {
               </div>
              
             </div>
-            {!isEditing && (
 
-// <div className="w-full max-w-4xl mx-auto p-6">
-//   {/* Full Name & Employee ID Section */}
-//   <div className="grid grid-cols-2 gap-6 mb-6">
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Full Name:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.FirstName} {logindata.LastName}</p>
-//     </div>
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Employee ID:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.EmployeeID}</p>
-//     </div>
-//   </div>
-
-//   {/* Store Name & Role Section */}
-//   <div className="grid grid-cols-2 gap-6 mb-6">
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Store Name:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.StoreName}</p>
-//     </div>
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Role Name:</p>
-//       <p className="text-lg text-gray-600">{selectedRole?.RoleName}</p>
-//     </div>
-//   </div>
-
-//   {/* Email & Phone Section */}
-//   <div className="grid grid-cols-2 gap-6 mb-6">
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Email:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.Email}</p>
-//     </div>
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Phone Number:</p>
-//       <p className="text-lg text-gray-600">{logindata?.PhoneNumber}</p>
-//     </div>
-//   </div>
-
-//   {/* Address Section */}
-//   <div className="grid grid-cols-2 gap-6 mb-6">
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Address Line 1:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.AddressLine1}</p>
-//     </div>
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Address Line 2:</p>
-//       <p className="text-lg text-gray-600">{logindata?.AddressLine2}</p>
-//     </div>
-//   </div>
-
-//   {/* Location Section */}
-//   <div className="grid grid-cols-2 gap-6 mb-6">
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">Country Name:</p>
-//       <p className="text-lg text-gray-600 ml-2">{logindata.CountryName}</p>
-//     </div>
-//     <div className="flex items-center">
-//       <p className="text-lg font-medium text-gray-700">State Name:</p>
-//       <p className="text-lg text-gray-600">{logindata?.StateName}</p>
-//     </div>
-//   </div>
-
-//   {/* Update Button */}
-//   {/* <div className="text-right">
-//     <button
-//       onClick={() => setIsEditing(true)}
-//       className="px-6 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-full transition duration-300 ease-in-out"
-//     >
-//       Update
-//     </button>
-//   </div> */}
-//    <div className="text-right">
-//         <button
-//           onClick={handleUpdateButtonClick}
-//           className="px-6 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-full transition duration-300 ease-in-out"
-//         >
-//           Update
-//         </button>
-// </div>
-// </div>
 <div className="w-full max-w-4xl mx-auto p-6">
   {/* <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">User Profile</h2> */}
+ {/* <div className="flex items-start space-x-4 mt-4">
 
+  <img
+    src={logindata.ProfileImage}
+    alt={`${logindata.FirstName} ${logindata.LastName}`}
+    className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+    onClick={openModal}
+  />
+
+ 
+  <div className="flex flex-col justify-center space-y-1">
+    <p className="text-lg font-bold">
+      {logindata.FirstName} {logindata.LastName}
+    </p>
+    <p className="text-sm text-gray-500">{logindata.Email}</p>
+    <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
+  </div>
+</div> */}
+  
   {/* Full Name & Employee ID Section */}
   <div className="grid grid-cols-2 gap-6 mb-2 pb-4">
     {/* <div className="space-y-1">
@@ -824,16 +943,26 @@ const Profile = () => {
   </div>
 
   {/* Update Button */}
-  <div className="flex justify-end">
+  <div className="flex justify-end gap-4 mt-10">
     <button
       onClick={handleUpdateButtonClick}
-      className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full transition duration-300"
+      // className="px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold transition duration-300"
+     className="inline-flex justify-center rounded-md border border-transparent bg-custom-darkblue py-2 px-4 text-sm font-medium text-white hover:text-black shadow-sm hover:bg-custom-lightblue focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
     >
       Update
     </button>
+ 
+        <button
+        onClick={handleUpdatePasswordClick}
+        className="inline-flex justify-center rounded-md border border-transparent bg-custom-darkblue py-2 px-4 text-sm font-medium text-white hover:text-black shadow-sm hover:bg-custom-lightblue focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+        // className="px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold rounded-sm transition duration-300"
+        >
+          Update Password
+        </button>
+    
   </div>
 </div>
-
+</div>
 )}
 
       <ToastContainer />
@@ -844,6 +973,141 @@ const Profile = () => {
       )}
        {isEditing && (
         <form className="w-full " onSubmit={handleFormSubmit}>
+
+{/* <div className="flex items-center space-x-4 mt-4">
+         
+<div>
+    
+    </div>
+
+    <div>
+   
+      
+      <input
+        type="file"
+        id="ProfileImage"
+        name="ProfileImage"
+        accept="image/*"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleImageChange}
+      />
+      
+
+      
+      <div className="mt-2 flex items-center">
+        <img
+          src={
+            profileImage || logindata.ProfileImage
+          }
+          // src={imagePreview || logindata.ProfileImage}
+          alt="Profile Preview"
+          className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+          onClick={handleImageClick} // Trigger upload on click
+        />
+       
+      </div>
+    </div>
+              <div>
+              {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
+          onClick={closeModal} // Close the modal when clicking outside
+        >
+          <div
+            className="relative bg-white p-4 rounded-lg"
+            onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside the modal
+          >
+            <img
+              src={logindata.ProfileImage}
+              alt={`${logindata.FirstName} ${logindata.LastName}`}
+              className="w-96 h-96 object-cover"
+            />
+<button
+  className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
+  onClick={closeModal} // Close the modal when clicking the close button
+>
+  <XMarkIcon className="w-6 h-6" /> 
+</button>
+
+          </div>
+        </div>
+      )}
+                <p className="text-lg font-bold">
+                  {logindata.FirstName} {logindata.LastName}
+                </p>
+                <p className="text-sm text-gray-500">{logindata.Email}</p>
+                <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
+              </div>
+             
+            </div> */}
+
+<div className="flex items-center space-x-4 mt-4 relative">
+  {/* Hidden Input for File Upload */}
+  <input
+    type="file"
+    id="ProfileImage"
+    name="ProfileImage"
+    accept="image/*"
+    ref={fileInputRef}
+    className="hidden"
+    onChange={handleImageChange}
+  />
+
+  {/* Uploaded Image Preview */}
+  <div className="relative">
+    <img
+      src={profileImage || logindata.ProfileImage}
+      alt="Profile Preview"
+      className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+      onClick={handleImageClick} // Trigger upload on click
+    />
+
+    {/* Plus Icon for Update */}
+    <div
+      className="absolute bottom-0 right-0 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center cursor-pointer border-2 border-white"
+      onClick={handleImageClick} // Trigger upload when clicking the plus icon
+    >
+      <span className="text-lg font-bold leading-none">+</span>
+    </div>
+  </div>
+
+  {/* User Information */}
+  <div>
+    <p className="text-lg font-bold">
+      {logindata.FirstName} {logindata.LastName}
+    </p>
+    <p className="text-sm text-gray-500">{logindata.Email}</p>
+    <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
+  </div>
+
+  {/* Modal for Image Preview */}
+  {isModalOpen && (
+    <div
+      className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
+      onClick={closeModal} // Close the modal when clicking outside
+    >
+      <div
+        className="relative bg-white p-4 rounded-lg"
+        onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
+      >
+        <img
+          src={logindata.ProfileImage}
+          alt={`${logindata.FirstName} ${logindata.LastName}`}
+          className="w-96 h-96 object-cover"
+        />
+        <button
+          className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
+          onClick={closeModal}
+        >
+          <XMarkIcon className="w-6 h-6" /> {/* Icon size */}
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
+
           <div className="flex justify-between items-center mb-6">
             {/* <h2 className="heading mb-4 px-24">Users</h2> */}
           </div>
@@ -1413,6 +1677,203 @@ const Profile = () => {
         </form>
     
     )}
+
+       {/* Modal */}
+       {showPasswordForm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+            {/* Close Button */}
+            <button
+              onClick={handleClose}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
+            >
+              &times;
+            </button>
+
+            {/* Modal Title */}
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Update Password
+            </h2>
+
+            {/* Form */}
+            {/* <form onSubmit={handleSubmit}>
+            
+              <div className="mb-4">
+                <label
+                  htmlFor="oldPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Old Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="oldPassword"
+                    name="oldPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.Password}
+                    onChange={handleFormChange}
+                    className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+                      !formData.oldPassword && errors.oldPassword
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    }`}
+                    placeholder="Enter old password"
+                  />
+               
+                  <span
+                    className="absolute right-2 top-1/2 pb-1 transform -translate-y-1/2 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {showPassword ? (
+                      <VisibilityOffIcon fontSize="small" className="opacity-75" />
+                    ) : (
+                      <VisibilityIcon fontSize="small" className="opacity-75" />
+                    )}
+                  </span>
+                </div>
+                {errors.oldPassword && (
+                  <p className="text-red-500 text-sm mt-1">{errors.oldPassword}</p>
+                )}
+              </div>
+
+             
+              <div className="mb-4">
+                <label
+                  htmlFor="newPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  New Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  value={formData.newPassword}
+                  onChange={handleFormChange}
+                  className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+                    !formData.newPassword && errors.newPassword
+                      ? "border-red-400"
+                      : "border-gray-400"
+                  }`}
+                  placeholder="Enter new password"
+                />
+                {errors.newPassword && (
+                  <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
+                )}
+              </div>
+
+             
+              <button
+                type="submit"
+                className="w-full px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold rounded-full transition duration-300"
+              >
+                Submit
+              </button>
+            </form> */}
+            <form onSubmit={handleSubmit}>
+  {/* Old Password */}
+  <div className="mb-4">
+    <label
+      htmlFor="oldPassword"
+      className="block text-sm font-medium text-gray-700"
+    >
+      Old Password <span className="text-red-500">*</span>
+    </label>
+    <div className="relative">
+      <input
+        id="oldPassword"
+        name="oldPassword"
+        type={showPassword ? "text" : "password"}
+        value={formData.Password}
+        onChange={handleFormChange}
+        className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+          !formData.oldPassword && errors.oldPassword
+            ? "border-red-400"
+            : "border-gray-400"
+        }`}
+        placeholder="Enter old password"
+      />
+      {/* Toggle Password Visibility */}
+      <span
+        className="absolute right-2 top-1/2 pb-1 transform -translate-y-1/2 cursor-pointer"
+        onClick={togglePasswordVisibility}
+      >
+        {showPassword ? (
+          <VisibilityOffIcon fontSize="small" className="opacity-75" />
+        ) : (
+          <VisibilityIcon fontSize="small" className="opacity-75" />
+        )}
+      </span>
+    </div>
+    {errors.oldPassword && (
+      <p className="text-red-500 text-sm mt-1">{errors.oldPassword}</p>
+    )}
+  </div>
+
+  {/* New Password */}
+  <div className="mb-4">
+    <label
+      htmlFor="newPassword"
+      className="block text-sm font-medium text-gray-700"
+    >
+      New Password <span className="text-red-500">*</span>
+    </label>
+    <input
+      id="newPassword"
+      name="newPassword"
+      type="password"
+      value={formData.newPassword}
+      onChange={handleFormChange}
+      className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+        !formData.newPassword && errors.newPassword
+          ? "border-red-400"
+          : "border-gray-400"
+      }`}
+      placeholder="Enter new password"
+    />
+    {errors.newPassword && (
+      <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
+    )}
+  </div>
+
+  {/* Confirm Password */}
+  <div className="mb-4">
+    <label
+      htmlFor="confirmPassword"
+      className="block text-sm font-medium text-gray-700"
+    >
+      Confirm Password <span className="text-red-500">*</span>
+    </label>
+    <input
+      id="confirmPassword"
+      name="confirmPassword"
+      type="password"
+      value={formData.confirmPassword}
+      onChange={handleFormChange}
+      className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+        !formData.confirmPassword && errors.confirmPassword
+          ? "border-red-400"
+          : "border-gray-400"
+      }`}
+      placeholder="Confirm new password"
+    />
+    {errors.confirmPassword && (
+      <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+    )}
+  </div>
+
+  {/* Submit Button */}
+  <button
+    type="submit"
+    className="w-full px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold rounded-full transition duration-300"
+  >
+    Submit
+  </button>
+</form>
+
+          </div>
+        </div>
+      )}
       </div>
    
         </>
