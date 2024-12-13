@@ -11,8 +11,8 @@ import {
   COUNTRIES_API,
   GETALLSTORES_API,
   LOGIN,
-  STATES_API,GETALLUSERSBYID_API,
-  
+  STATES_API,
+  GETALLUSERSBYID_API,
 } from "../../Constants/apiRoutes";
 import axios from "axios";
 import LoadingAnimation from "../Loading/LoadingAnimation";
@@ -25,7 +25,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, setLogindata} = useAuth();
+  const { login, setLogindata } = useAuth();
   const [isStoreDataLoading, setIsStoreDataLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isUserDataLoading, setIsUserDataLoading] = useState(false);
@@ -59,16 +59,16 @@ const Login = () => {
   };
   const fetchAndStoreStoresData = async () => {
     setIsStoreDataLoading(true);
-  
+
     // Retrieve userID from local storage
     const userID = localStorage.getItem("UserID");
-  
+
     if (!userID) {
       console.error("UserID not found in local storage");
       setIsStoreDataLoading(false);
       return [];
     }
-  
+
     const params = {
       pageNumber: 1,
       pageSize: 1000,
@@ -76,7 +76,9 @@ const Login = () => {
 
     try {
       const storeResponse = await fetch(
-        `${GETALLSTORES_API}?UserID=${userID}&${new URLSearchParams(params).toString()}`
+        `${GETALLSTORES_API}?UserID=${userID}&${new URLSearchParams(
+          params
+        ).toString()}`
       );
       const storesData = await storeResponse.json();
       const stores = storesData.Stores || [];
@@ -96,16 +98,16 @@ const Login = () => {
 
   const fetchUserDetails = async () => {
     setIsUserDataLoading(true);
-  
+
     // Retrieve userID from localStorage
     const userID = localStorage.getItem("UserID");
-  
+
     if (!userID) {
       console.error("UserID not found in local storage");
       setIsUserDataLoading(false);
       return null; // Return null if UserID is not found
     }
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -113,7 +115,7 @@ const Login = () => {
         setIsUserDataLoading(false);
         return null; // Return null if token is missing
       }
-  
+
       const response = await fetch(`${GETALLUSERSBYID_API}/${userID}`, {
         method: "GET",
         headers: {
@@ -121,17 +123,17 @@ const Login = () => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`Error fetching user details: ${response.statusText}`);
       }
-  
+
       const userData = await response.json();
       const userDetails = userData?.user || null;
-  
+
       // Store user data in localStorage
       localStorage.setItem("userData", JSON.stringify(userDetails));
-  
+
       return userDetails;
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -140,7 +142,7 @@ const Login = () => {
       setIsUserDataLoading(false);
     }
   };
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -167,7 +169,11 @@ const Login = () => {
         login(token, roleID, userID);
 
         // Wait for both data fetching operations to complete
-        await Promise.all([fetchApiData(), fetchAndStoreStoresData(),fetchUserDetails ()]);
+        await Promise.all([
+          fetchApiData(),
+          fetchAndStoreStoresData(),
+          fetchUserDetails(),
+        ]);
 
         // Now that all data is loaded, navigate to the dashboard
         navigate("/dashboard");
@@ -193,7 +199,7 @@ const Login = () => {
       setIsLoading(false); // Stop loading after navigation
     }, 500); // Simulate a small loading delay (500ms)
   };
-  
+
   return (
     <>
       <div className="flex min-h-full p-0 m-0 flex-1 bg-gray-100">
@@ -240,7 +246,6 @@ const Login = () => {
                       <input
                         id="password"
                         name="password"
-                        
                         type={showPassword ? "text" : "password"}
                         required
                         placeholder="Password"
@@ -253,48 +258,49 @@ const Login = () => {
                       <span
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#301607]"
                         onClick={togglePasswordVisibility}
-                        
                       >
                         {showPassword ? (
-                          <VisibilityOffIcon fontSize="small" className="opacity-85" />
+                          <VisibilityOffIcon
+                            fontSize="small"
+                            className="opacity-85"
+                          />
                         ) : (
-                          <VisibilityIcon fontSize="small" className="opacity-85" />
+                          <VisibilityIcon
+                            fontSize="small"
+                            className="opacity-85"
+                          />
                         )}
                       </span>
                     </div>
                   </div>
-                 
+
                   <div className="flex items-center justify-between mb-4">
-  {/* Remember Me */}
-  <div className="flex items-center">
-    <input
-      id="remember-me"
-      name="remember-me"
-      type="checkbox"
-      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-    />
-    <label
-      htmlFor="remember-me"
-      className="ml-2 block text-sm text-gray-700"
-    >
-      Remember me
-    </label>
-  </div>
+                    {/* Remember Me */}
+                    <div className="flex items-center">
+                      <input
+                        id="remember-me"
+                        name="remember-me"
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      />
+                      <label
+                        htmlFor="remember-me"
+                        className="ml-2 block text-sm text-gray-700"
+                      >
+                        Remember me
+                      </label>
+                    </div>
 
-<div>
-  <a
-    href="#"
-    onClick={handleForgotPassword} 
-    className="text-sm text-gray-700 hover:underline focus:outline-none focus:underline focus:text-[#301607] px-2"
-  >
-    Forgot Password?
-  </a>
-</div>
-
-
-
-</div>
-
+                    <div>
+                      <a
+                        href="#"
+                        onClick={handleForgotPassword}
+                        className="text-sm text-gray-700 hover:underline focus:outline-none focus:underline focus:text-[#301607] px-2"
+                      >
+                        Forgot Password?
+                      </a>
+                    </div>
+                  </div>
 
                   <div>
                     <div className="flex justify-center mb-4">

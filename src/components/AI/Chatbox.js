@@ -1,9 +1,8 @@
-
 // import React, { useState, useEffect } from "react";
 // import { FiMessageSquare } from "react-icons/fi";
 // import { ChatBox } from "../../Constants/apiRoutes"; // Import API route
 // import { RiCloseLine } from "react-icons/ri";
-// import { FiChevronDown } from "react-icons/fi"; 
+// import { FiChevronDown } from "react-icons/fi";
 // import { FaAnglesDown } from "react-icons/fa6";
 // import { FaAngleDown } from "react-icons/fa6";
 
@@ -13,16 +12,15 @@
 //   const [loading, setLoading] = useState(false);
 //   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  
 //   const handleSubmit = async () => {
 //     if (!userInput.trim()) return; // Do nothing if input is empty
-  
+
 //     // Add user message to chat
 //     const userMessage = { text: userInput, sender: "user" };
 //     setMessages((prevMessages) => [...prevMessages, userMessage]);
 //     setUserInput(""); // Clear the input field
 //     setLoading(true); // Set loading state
-  
+
 //     try {
 //       const getAIResponse = async (message) => {
 //         console.log("Sending message to API:", message);
@@ -33,27 +31,27 @@
 //           },
 //           body: JSON.stringify({ message }),
 //         });
-  
+
 //         if (!response.ok) throw new Error("Failed to fetch AI response");
-  
+
 //         const data = await response.json();
 //         console.log("API Response:", data);
 //         return data;
 //       };
-  
+
 //       const response = await getAIResponse(userInput);
 //       let aiMessageText = "";
-  
+
 //       // Extract 'reply' and 'data' from the response
 //       if (response && response.reply) {
 //         aiMessageText = response.reply;
 //       } else {
 //         aiMessageText = "No valid response received from AI.";
 //       }
-  
+
 //       const aiMessage = { text: aiMessageText, sender: "ai" };
 //       setMessages((prevMessages) => [...prevMessages, aiMessage]);
-  
+
 //       // Process and format 'data' if it exists
 //       if (response.data && Array.isArray(response.data)) {
 //         const formattedData = response.data
@@ -67,12 +65,12 @@
 //             }`;
 //           })
 //           .join("\n\n");
-  
+
 //         const dataMessage = {
 //           text: formattedData,
 //           sender: "ai",
 //         };
-  
+
 //         // Add the formatted 'data' as a separate message
 //         setMessages((prevMessages) => [...prevMessages, dataMessage]);
 //       }
@@ -87,7 +85,7 @@
 //       setLoading(false); // Reset loading state
 //     }
 //   };
-  
+
 //   const toggleChatBox = () => setIsChatOpen(!isChatOpen);
 
 //   // Auto-scroll chatbox when messages update
@@ -112,11 +110,11 @@
 //     className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600"
 //   >
 //     {isChatOpen ? (
-//     //  <FiChevronDown size={24} /> 
+//     //  <FiChevronDown size={24} />
 //     // <FaAnglesDown size={24} />
 //     <FaAngleDown size={24}/>
 //     ) : (
-//       <FiMessageSquare size={24} /> 
+//       <FiMessageSquare size={24} />
 //     )}
 //   </button>
 // </div>
@@ -128,7 +126,7 @@
 //         <div className="fixed bottom-16 right-6 w-96 p-4 bg-white border rounded-lg shadow-lg z-50 flex flex-col">
 //           <div className="flex justify-between items-center mb-2">
 //             <h2 className="text-lg font-bold">AI Chat Assistant</h2>
-        
+
 //           </div>
 
 //           {/* Messages */}
@@ -180,13 +178,11 @@
 
 // export default AIChatBot;
 
-
-
 import React, { useState, useEffect } from "react";
 import { FiMessageSquare } from "react-icons/fi";
 import { ChatBox } from "../../Constants/apiRoutes"; // Import API route
 import { RiCloseLine } from "react-icons/ri";
-import { FiChevronDown } from "react-icons/fi"; 
+import { FiChevronDown } from "react-icons/fi";
 import { FaAnglesDown } from "react-icons/fa6";
 import { FaAngleDown } from "react-icons/fa6";
 
@@ -196,16 +192,15 @@ const AIChatBot = () => {
   const [loading, setLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  
   const handleSubmit = async () => {
     if (!userInput.trim()) return; // Do nothing if input is empty
-  
+
     // Add user message to chat
     const userMessage = { text: userInput, sender: "user" };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setUserInput(""); // Clear the input field
     setLoading(true); // Set loading state
-  
+
     try {
       const getAIResponse = async (message) => {
         console.log("Sending message to API:", message);
@@ -216,27 +211,27 @@ const AIChatBot = () => {
           },
           body: JSON.stringify({ message }),
         });
-  
+
         if (!response.ok) throw new Error("Failed to fetch AI response");
-  
+
         const data = await response.json();
         console.log("API Response:", data);
         return data;
       };
-  
+
       const response = await getAIResponse(userInput);
       let aiMessageText = "";
-  
+
       // Extract 'reply' and 'data' from the response
       if (response && response.reply) {
         aiMessageText = response.reply;
       } else {
         aiMessageText = "No valid response received from AI.";
       }
-  
+
       const aiMessage = { text: aiMessageText, sender: "ai" };
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
-  
+
       // Process and format 'data' if it exists
       if (response.data && Array.isArray(response.data)) {
         const formattedData = response.data
@@ -245,17 +240,15 @@ const AIChatBot = () => {
   Order Number: ${item.OrderNumber || "N/A"}
   Status: ${item.status || "N/A"}
   Total: ${item.total || "N/A"}
-  Date: ${
-              item.date ? new Date(item.date).toLocaleDateString() : "N/A"
-            }`;
+  Date: ${item.date ? new Date(item.date).toLocaleDateString() : "N/A"}`;
           })
           .join("\n\n");
-  
+
         const dataMessage = {
           text: formattedData,
           sender: "ai",
         };
-  
+
         // Add the formatted 'data' as a separate message
         setMessages((prevMessages) => [...prevMessages, dataMessage]);
       }
@@ -270,7 +263,7 @@ const AIChatBot = () => {
       setLoading(false); // Reset loading state
     }
   };
-  
+
   const toggleChatBox = () => setIsChatOpen(!isChatOpen);
 
   // Auto-scroll chatbox when messages update
@@ -290,20 +283,19 @@ const AIChatBot = () => {
           <FiMessageSquare size={24} />
         </button> */}
         <div className="fixed bottom-6 right-6 z-50">
-  <button
-    onClick={toggleChatBox}
-    className="bg-orange-500 text-white p-3 rounded-full shadow-lg hover:bg-orange-600"
-  >
-    {isChatOpen ? (
-    //  <FiChevronDown size={24} /> 
-    // <FaAnglesDown size={24} />
-    <FaAngleDown size={24}/>
-    ) : (
-      <FiMessageSquare size={24} /> 
-    )}
-  </button>
-</div>
-
+          <button
+            onClick={toggleChatBox}
+            className="bg-orange-500 text-white p-3 rounded-full shadow-lg hover:bg-orange-600"
+          >
+            {isChatOpen ? (
+              //  <FiChevronDown size={24} />
+              // <FaAnglesDown size={24} />
+              <FaAngleDown size={24} />
+            ) : (
+              <FiMessageSquare size={24} />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Chatbox */}
@@ -311,7 +303,6 @@ const AIChatBot = () => {
         <div className="fixed bottom-16 right-6 w-96 p-4 bg-white border rounded-lg shadow-lg z-50 flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-bold">AI Chat Assistant</h2>
-        
           </div>
 
           {/* Messages */}
@@ -323,7 +314,9 @@ const AIChatBot = () => {
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  message.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`max-w-xs p-3 rounded-lg ${
