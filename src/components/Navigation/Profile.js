@@ -9,7 +9,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import {
   CREATEORUPDATE_USERS_API,
   GETALLROLESS_API,
-  GETALLUSERSBYID_API,
+  GETALLUSERSBYID_API,UpdatePassword,
 } from "../../Constants/apiRoutes";
 import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import { DataContext } from "../../Context/DataContext";
@@ -18,7 +18,7 @@ import { useParams } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { XMarkIcon } from "@heroicons/react/24/solid"; // Heroicons v2 syntax
-
+import { FaPlus } from "react-icons/fa6";
 
 const genderOptions = [
     { id: "M", name: "Male" },
@@ -106,7 +106,7 @@ const Profile = () => {
 
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
-  const [errors, setErrors] = useState({});
+ 
 
   const { storesData } = useContext(DataContext);
   const [stores, setStores] = useState([]);
@@ -130,37 +130,21 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState(null);
 
+  const [formPasswordData, setFormPasswordData] = useState({
+    userID: 3, // Replace with dynamic user ID if needed
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(""); // Success or error response message
+  
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "oldPassword") setOldPassword(value);
-    if (name === "newPassword") setNewPassword(value);
+    setFormPasswordData({ ...formPasswordData, [name]: value });
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let formErrors = {};
-  
-    if (!formData.oldPassword) {
-      formErrors.oldPassword = "Old password is required.";
-    }
-  
-    if (!formData.newPassword) {
-      formErrors.newPassword = "New password is required.";
-    }
-  
-    if (formData.confirmPassword !== formData.newPassword) {
-      formErrors.confirmPassword = "Passwords do not match.";
-    }
-  
-    setErrors(formErrors);
-  
-    if (Object.keys(formErrors).length === 0) {
-      // Submit logic here
-      console.log("Form submitted successfully!");
-    }
-  };
-  
 
   // Handle modal close
   const handleClose = () => {
@@ -215,15 +199,7 @@ const Profile = () => {
     setShowPassword((prev) => !prev);
   };
 
-  // const handleImageChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     setFormData({
-  //       ...formData,
-  //       ProfileImage: file,
-  //     });
-  //   }
-  // };
+ 
 
   const [selectedGender, setSelectedGender] = useState(formData.Gender || "");
   const [isLoading, setIsLoading] = useState(false);
@@ -252,18 +228,72 @@ const Profile = () => {
     }
   };
 
-  // Trigger hidden file input on image click
-  // const handleImageClick = () => {
-  //   fileInputRef.current.click();
-  // };
+   // Form submit handler
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+   let formErrors = {};
 
-  // const handleRoleChange = (role) => {
-  //   setSelectedRole(role);
-  //   setFormData((prevFormData) => ({
-  //     ...prevFormData,
-  //     RoleID: role.id,
-  //   }));
-  // };
+   // Validation
+   if (!formPasswordData.oldPassword) {
+     formErrors.oldPassword = "Old password is required.";
+   }
+   if (!formPasswordData.newPassword) {
+     formErrors.newPassword = "New password is required.";
+   }
+   if (formPasswordData.confirmPassword !== formPasswordData.newPassword) {
+     formErrors.confirmPassword = "Passwords do not match.";
+   }
+
+   setErrors(formErrors);
+
+   // If no errors, make API call
+   if (Object.keys(formErrors).length === 0) {
+     setIsLoading(true);
+     try {
+       const response = await axios.post(
+         UpdatePassword, 
+         {
+           UserID: UserId,
+           OldPassword: formPasswordData.oldPassword,
+           NewPassword: formPasswordData.newPassword,
+           ConfirmPassword: formPasswordData.confirmPassword,
+         }
+       );
+
+       // Toast success message
+       toast.success("Password updated successfully!");
+       setIsLoading(true);
+       setShowPasswordForm (false);
+
+       console.log("Response:", response.data);
+
+       // Clear form fields
+       setFormPasswordData({
+         userID: UserId,
+         oldPassword: "",
+         newPassword: "",
+         confirmPassword: "",
+       });
+       setErrors({});
+     } catch (error) {
+       // Toast error message
+       const errorMessage =
+         error.response?.data?.message || "Failed to update password.";
+       toast.error(errorMessage);
+       console.error("Error updating password:", errorMessage);
+       // setFormPasswordData({
+       //   userID: UserId,
+       //   oldPassword: "",
+       //   newPassword: "",
+       //   confirmPassword: "",
+       // });
+     }finally {
+       setIsLoading(false);
+     }
+   }
+ };
+
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -665,57 +695,32 @@ const Profile = () => {
     }
   };
 
-  // Trigger fetch on initial mount and when "Update" button is clicked
-//   useEffect(() => {
-//     if (dependenciesLoaded && !userDataLoaded) {
-//       fetchUserDetails();
-//     }
-//   }, [dependenciesLoaded, userDataLoaded, UserId]);
+ 
 
   const handleUpdateButtonClick = () => {
     // Fetch user details when "Update" button is clicked
     setIsEditing(true); // Enable edit mode
     fetchUserDetails();  // Fetch data again
   };
+
   const handleUpdatePasswordClick = () => {
-    // Fetch user details when "Update" button is clicked
-    setShowPasswordForm (true); // Enable edit mode
-    setIsEditing(false);
-    fetchUserDetails();  // Fetch data again
-  };
+    setIsEditing(false);      // Exit editing mode
+    setIsLoading(true);       // Start loading
+  
+    // Simulate a short delay (e.g., fetching data or processing)
+    setTimeout(() => {
+      fetchUserDetails();     // Fetch updated user details
+      setShowPasswordForm(true); // Show the password form
+      setIsLoading(false);    // Stop loading
+    }, 500);
+    }
 
   // Trigger file input when image is clicked
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
 
-  // Handle image change and preview
-  // const handleImageChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setImagePreview(reader.result); // Set image preview
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
  
-  // const handleImageChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       // Update the logindata state with the new image preview
-  //       setLogindata((prevData) => ({
-  //         ...prevData,
-  //         ProfileImage: reader.result, // Set the preview as ProfileImage
-  //       }));
-  //     };
-  //     reader.readAsDataURL(file); // Convert file to base64 for preview
-  //   }
-  // };
-
 
   return (
     
@@ -728,80 +733,8 @@ const Profile = () => {
       {/* User Details */}
       {logindata && (
         <>
-            {/* <img
-        src={logindata.ProfileImage}
-        alt={`${logindata.FirstName} ${logindata.LastName}`}
-        className="w-24 h-24 rounded-full object-cover border cursor-pointer"
-        onClick={openModal} 
-      /> */}
           <div className="user-details">
-            {/* <div className="flex items-center space-x-4 mt-4">
-
-<div>
-    
-    </div>
-
-    <div>
-   
-     
-      <input
-        type="file"
-        id="ProfileImage"
-        name="ProfileImage"
-        accept="image/*"
-        ref={fileInputRef}
-        className="hidden"
-        onChange={handleImageChange}
-      />
-      
-
-      
-      <div className="mt-2 flex items-center">
-        <img
-          src={
-            profileImage || logindata.ProfileImage
-          }
-          // src={imagePreview || logindata.ProfileImage}
-          alt="Profile Preview"
-          className="w-24 h-24 rounded-full object-cover border cursor-pointer"
-          onClick={handleImageClick} // Trigger upload on click
-        />
-       
-      </div>
-    </div>
-              <div>
-              {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
-          onClick={closeModal} // Close the modal when clicking outside
-        >
-          <div
-            className="relative bg-white p-4 rounded-lg"
-            onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside the modal
-          >
-            <img
-              src={logindata.ProfileImage}
-              alt={`${logindata.FirstName} ${logindata.LastName}`}
-              className="w-96 h-96 object-cover"
-            />
-<button
-  className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
-  onClick={closeModal} // Close the modal when clicking the close button
->
-  <XMarkIcon className="w-6 h-6" /> 
-</button>
-
-          </div>
-        </div>
-      )}
-                <p className="text-lg font-bold">
-                  {logindata.FirstName} {logindata.LastName}
-                </p>
-                <p className="text-sm text-gray-500">{logindata.Email}</p>
-                <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
-              </div>
-             
-            </div> */}
+           
 
             {!isEditing && (
               <div>
@@ -847,25 +780,6 @@ const Profile = () => {
             </div>
 
 <div className="w-full max-w-4xl mx-auto p-6">
-  {/* <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">User Profile</h2> */}
- {/* <div className="flex items-start space-x-4 mt-4">
-
-  <img
-    src={logindata.ProfileImage}
-    alt={`${logindata.FirstName} ${logindata.LastName}`}
-    className="w-24 h-24 rounded-full object-cover border cursor-pointer"
-    onClick={openModal}
-  />
-
- 
-  <div className="flex flex-col justify-center space-y-1">
-    <p className="text-lg font-bold">
-      {logindata.FirstName} {logindata.LastName}
-    </p>
-    <p className="text-sm text-gray-500">{logindata.Email}</p>
-    <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
-  </div>
-</div> */}
   
   {/* Full Name & Employee ID Section */}
   <div className="grid grid-cols-2 gap-6 mb-2 pb-4">
@@ -974,73 +888,6 @@ const Profile = () => {
        {isEditing && (
         <form className="w-full " onSubmit={handleFormSubmit}>
 
-{/* <div className="flex items-center space-x-4 mt-4">
-         
-<div>
-    
-    </div>
-
-    <div>
-   
-      
-      <input
-        type="file"
-        id="ProfileImage"
-        name="ProfileImage"
-        accept="image/*"
-        ref={fileInputRef}
-        className="hidden"
-        onChange={handleImageChange}
-      />
-      
-
-      
-      <div className="mt-2 flex items-center">
-        <img
-          src={
-            profileImage || logindata.ProfileImage
-          }
-          // src={imagePreview || logindata.ProfileImage}
-          alt="Profile Preview"
-          className="w-24 h-24 rounded-full object-cover border cursor-pointer"
-          onClick={handleImageClick} // Trigger upload on click
-        />
-       
-      </div>
-    </div>
-              <div>
-              {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
-          onClick={closeModal} // Close the modal when clicking outside
-        >
-          <div
-            className="relative bg-white p-4 rounded-lg"
-            onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside the modal
-          >
-            <img
-              src={logindata.ProfileImage}
-              alt={`${logindata.FirstName} ${logindata.LastName}`}
-              className="w-96 h-96 object-cover"
-            />
-<button
-  className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
-  onClick={closeModal} // Close the modal when clicking the close button
->
-  <XMarkIcon className="w-6 h-6" /> 
-</button>
-
-          </div>
-        </div>
-      )}
-                <p className="text-lg font-bold">
-                  {logindata.FirstName} {logindata.LastName}
-                </p>
-                <p className="text-sm text-gray-500">{logindata.Email}</p>
-                <p className="text-sm text-gray-500">{logindata.PhoneNumber}</p>
-              </div>
-             
-            </div> */}
 
 <div className="flex items-center space-x-4 mt-4 relative">
   {/* Hidden Input for File Upload */}
@@ -1063,13 +910,18 @@ const Profile = () => {
       onClick={handleImageClick} // Trigger upload on click
     />
 
-    {/* Plus Icon for Update */}
-    <div
-      className="absolute bottom-0 right-0 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center cursor-pointer border-2 border-white"
-      onClick={handleImageClick} // Trigger upload when clicking the plus icon
-    >
-      <span className="text-lg font-bold leading-none">+</span>
-    </div>
+   
+ <div
+  className="absolute bottom-0 right-0 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center cursor-pointer border-2 border-white"
+  onClick={handleImageClick}
+>
+  <span className="text-base font-bold flex items-center justify-center leading-10">
+    {/* + */}
+    <FaPlus className="w-3 h-3" />
+  </span>
+</div>
+
+
   </div>
 
   {/* User Information */}
@@ -1100,7 +952,7 @@ const Profile = () => {
           className="absolute top-0 right-0 m-1 text-white bg-red-500 p-1 rounded-full"
           onClick={closeModal}
         >
-          <XMarkIcon className="w-6 h-6" /> {/* Icon size */}
+          <XMarkIcon className="w-6 h-6" /> 
         </button>
       </div>
     </div>
@@ -1694,183 +1546,101 @@ const Profile = () => {
             <h2 className="text-2xl font-semibold mb-4 text-gray-800">
               Update Password
             </h2>
-
-            {/* Form */}
-            {/* <form onSubmit={handleSubmit}>
-            
-              <div className="mb-4">
-                <label
-                  htmlFor="oldPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Old Password <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="oldPassword"
-                    name="oldPassword"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.Password}
-                    onChange={handleFormChange}
-                    className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
-                      !formData.oldPassword && errors.oldPassword
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    }`}
-                    placeholder="Enter old password"
-                  />
-               
-                  <span
-                    className="absolute right-2 top-1/2 pb-1 transform -translate-y-1/2 cursor-pointer"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? (
-                      <VisibilityOffIcon fontSize="small" className="opacity-75" />
-                    ) : (
-                      <VisibilityIcon fontSize="small" className="opacity-75" />
-                    )}
-                  </span>
-                </div>
-                {errors.oldPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.oldPassword}</p>
-                )}
-              </div>
-
-             
-              <div className="mb-4">
-                <label
-                  htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  New Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  value={formData.newPassword}
-                  onChange={handleFormChange}
-                  className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
-                    !formData.newPassword && errors.newPassword
-                      ? "border-red-400"
-                      : "border-gray-400"
-                  }`}
-                  placeholder="Enter new password"
-                />
-                {errors.newPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
-                )}
-              </div>
-
-             
-              <button
-                type="submit"
-                className="w-full px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold rounded-full transition duration-300"
-              >
-                Submit
-              </button>
-            </form> */}
             <form onSubmit={handleSubmit}>
-  {/* Old Password */}
-  <div className="mb-4">
-    <label
-      htmlFor="oldPassword"
-      className="block text-sm font-medium text-gray-700"
-    >
-      Old Password <span className="text-red-500">*</span>
-    </label>
-    <div className="relative">
-      <input
-        id="oldPassword"
-        name="oldPassword"
-        type={showPassword ? "text" : "password"}
-        value={formData.Password}
-        onChange={handleFormChange}
-        className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
-          !formData.oldPassword && errors.oldPassword
-            ? "border-red-400"
-            : "border-gray-400"
-        }`}
-        placeholder="Enter old password"
-      />
-      {/* Toggle Password Visibility */}
-      <span
-        className="absolute right-2 top-1/2 pb-1 transform -translate-y-1/2 cursor-pointer"
-        onClick={togglePasswordVisibility}
-      >
-        {showPassword ? (
-          <VisibilityOffIcon fontSize="small" className="opacity-75" />
-        ) : (
-          <VisibilityIcon fontSize="small" className="opacity-75" />
+      {/* Old Password */}
+      <div className="mb-4">
+        <label
+          htmlFor="oldPassword"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Old Password <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <input
+            id="oldPassword"
+            name="oldPassword"
+            type={showPassword ? "text" : "password"}
+            value={formPasswordData.oldPassword}
+            onChange={handleInputChange}
+            className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+              errors.oldPassword ? "border-red-400" : "border-gray-400"
+            }`}
+            placeholder="Enter old password"
+          />
+          <span
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            onClick={togglePasswordVisibility}
+          >
+            {showPassword ? (
+              <VisibilityOffIcon fontSize="small" className="opacity-75" />
+            ) : (
+              <VisibilityIcon fontSize="small" className="opacity-75" />
+            )}
+          </span>
+        </div>
+        {errors.oldPassword && (
+          <p className="text-red-500 text-sm mt-1">{errors.oldPassword}</p>
         )}
-      </span>
-    </div>
-    {errors.oldPassword && (
-      <p className="text-red-500 text-sm mt-1">{errors.oldPassword}</p>
-    )}
-  </div>
+      </div>
 
-  {/* New Password */}
-  <div className="mb-4">
-    <label
-      htmlFor="newPassword"
-      className="block text-sm font-medium text-gray-700"
-    >
-      New Password <span className="text-red-500">*</span>
-    </label>
-    <input
-      id="newPassword"
-      name="newPassword"
-      type="password"
-      value={formData.newPassword}
-      onChange={handleFormChange}
-      className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
-        !formData.newPassword && errors.newPassword
-          ? "border-red-400"
-          : "border-gray-400"
-      }`}
-      placeholder="Enter new password"
-    />
-    {errors.newPassword && (
-      <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
-    )}
-  </div>
+      {/* New Password */}
+      <div className="mb-4">
+        <label
+          htmlFor="newPassword"
+          className="block text-sm font-medium text-gray-700"
+        >
+          New Password <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="newPassword"
+          name="newPassword"
+          type="password"
+          value={formPasswordData.newPassword}
+          onChange={handleInputChange}
+          className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+            errors.newPassword ? "border-red-400" : "border-gray-400"
+          }`}
+          placeholder="Enter new password"
+        />
+        {errors.newPassword && (
+          <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
+        )}
+      </div>
 
-  {/* Confirm Password */}
-  <div className="mb-4">
-    <label
-      htmlFor="confirmPassword"
-      className="block text-sm font-medium text-gray-700"
-    >
-      Confirm Password <span className="text-red-500">*</span>
-    </label>
-    <input
-      id="confirmPassword"
-      name="confirmPassword"
-      type="password"
-      value={formData.confirmPassword}
-      onChange={handleFormChange}
-      className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
-        !formData.confirmPassword && errors.confirmPassword
-          ? "border-red-400"
-          : "border-gray-400"
-      }`}
-      placeholder="Confirm new password"
-    />
-    {errors.confirmPassword && (
-      <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-    )}
-  </div>
+      {/* Confirm Password */}
+      <div className="mb-4">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Confirm Password <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          value={formPasswordData.confirmPassword}
+          onChange={handleInputChange}
+          className={`mt-2 mb-1 block w-full rounded-md border py-2 px-4 sm:text-sm ${
+            errors.confirmPassword ? "border-red-400" : "border-gray-400"
+          }`}
+          placeholder="Confirm new password"
+        />
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+        )}
+      </div>
 
-  {/* Submit Button */}
-  <button
-    type="submit"
-    className="w-full px-6 py-2 bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold rounded-full transition duration-300"
-  >
-    Submit
-  </button>
-</form>
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full mb-6 mt-6 inline-flex justify-center rounded-md border border-transparent bg-custom-darkblue py-2 px-4 text-sm font-medium text-white hover:text-black shadow-sm hover:bg-custom-lightblue focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+        // className="w-full px-6 py-2 text-xl mb-4  bg-custom-blue-table hover:bg-custom-lightblue hover:text-gray-700 text-white font-semibold transition duration-300"
+      >
+        Submit
+      </button>
 
+    </form>
           </div>
         </div>
       )}

@@ -5,6 +5,7 @@ import axios from "axios";
 import { HolidaysList } from "../../Constants/apiRoutes"; 
 import { FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -166,6 +167,7 @@ const YearView = () => {
         </div>
         
       </div>
+      {loading && <LoadingAnimation />}
     </div>
   );
 };

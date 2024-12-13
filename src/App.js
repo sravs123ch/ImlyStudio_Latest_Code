@@ -48,10 +48,13 @@ import YearView from "./components/Calender/Yearwise";
 import CalendarScreen from "./components/Calender/Calender";
 import Profile from "./components/Navigation/Profile";
 import Settings from "./components/Navigation/Settings";
+import ForgotPassword from "./components/Login/forgotpassword";
+import ResetPassword from "./components/Login/ResetPassword";
 
 function App() {
   const location = useLocation();
-  const showNavigation = location.pathname !== "/";
+  // const showNavigation = location.pathname !== "/";
+  const showNavigation = location.pathname !== "/" && location.pathname !== "/forgot-password"&& location.pathname !== "/reset-password";
 
   return (
     <div className="App flex flex-col min-h-screen">
@@ -71,8 +74,9 @@ function App() {
                           <ReferenceProvider>
                           <StatusColorsProvider>
                             <Routes>
+                              <Route path="/forgot-password" element={<ForgotPassword />}/>
+                              <Route path="/reset-password" element={<ResetPassword />}/>
                               <Route path="/" element={<Login />} />
-
                               <Route
                                 path="/user"
                                 element={

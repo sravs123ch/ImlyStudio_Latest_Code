@@ -100,7 +100,14 @@ export const getTasksForUser=`${BASE_URL}/orderhistory/getTasksForUser`;
 
 export const TaskStatusUpdate=`${BASE_URL}/orderhistory/updateProgressStatus`;
 
+
 export const ChatBox=`${BASE_URL}/auth/chat`;
+export const UpdatePassword =`${BASE_URL}/users/updatePassword`;
+export const ForgotPassword =`${BASE_URL}/users/ForgotPassword`;
+
+export const VerifyOTP =`${BASE_URL}/users/validateOtp`;
+
+export const ResetPassword =`${BASE_URL}/users/validateOtpAndUpdatePassword`;
 
 export const HolidaysList=`${BASE_URL}/holidayCalender/listHolidays`;
 

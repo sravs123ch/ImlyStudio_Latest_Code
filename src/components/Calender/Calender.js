@@ -5,6 +5,7 @@ import { HolidaysList } from "../../Constants/apiRoutes";
 import { Combobox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { FaCalendarAlt } from "react-icons/fa";
+import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 
 const MONTH_NAMES = [
   "January",
@@ -33,17 +34,18 @@ const CalendarScreen = () => {
   const [filteredMonths, setFilteredMonths] = useState(MONTH_NAMES);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+ const [isLoading, setIsLoading] = useState(false);
 
   // Fetch holidays from the API
   const fetchHolidays = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       const response = await axios.get(HolidaysList);
       setHolidays(response.data.holidays); // Adjust key based on API response structure
-      setLoading(false);
+      setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch holidays. Please try again later.");
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -331,6 +333,7 @@ const CalendarScreen = () => {
           })}
         </div>
       </div>
+      {isLoading && <LoadingAnimation />}
     </div>
   );
 };

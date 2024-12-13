@@ -381,6 +381,7 @@ function ReportGenerator() {
 
   useEffect(() => {
     const fetchOrderStatuses = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(ORDER_STATUS_API);
 
@@ -394,6 +395,8 @@ function ReportGenerator() {
         }
       } catch (error) {
         console.error("Error fetching order statuses:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -767,11 +770,11 @@ function ReportGenerator() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 pt-4 ml-10 lg:ml-80 w-auto p-6 mt-10 mx-10 mb-10">
       <ToastContainer />
-      {isLoading && (
+      {/* {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-gray-700">
           <LoadingAnimation />
         </div>
-      )}
+      )} */}
       <h2 className="text-2xl font-bold mb-4">Report Generator</h2>
       <div class="text-sm font-medium text-center ml-20 text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px">
@@ -1803,6 +1806,7 @@ function ReportGenerator() {
               </div>
             </div>
           </div>
+          {isLoading && <LoadingAnimation />}
         </>
       )}
     </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LoadingAnimation from "../Loading/LoadingAnimation";
+import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import { createProject, updateProject, getProjectTypeById } from "../../Constants/apiRoutes";
 import { useParams } from "react-router-dom";
 import { RiCloseLine } from 'react-icons/ri';
@@ -251,8 +251,9 @@ const AddProject = () => {
     };
     return (
         <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:ml-10 lg:ml-56 w-auto mt-4 p-6 rounded-lg">
+              
             <div className="mt-6 p-6 bg-white">
-                <ToastContainer /> {loading && <LoadingAnimation />}
+                <ToastContainer />
                 <h2 className="heading">
                     {editMode ? "Update Project" : "Add Project"}
                 </h2>
@@ -385,6 +386,7 @@ const AddProject = () => {
                     </div>
                 </div>
             </div>
+            {loading && <LoadingAnimation />}
         </div>
     );
 };

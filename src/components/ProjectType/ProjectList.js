@@ -12,7 +12,7 @@ import { getProjects, deleteProjectType } from "../../Constants/apiRoutes";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { toast, ToastContainer } from 'react-toastify';
 import { IoEllipsisHorizontalCircleSharp } from "react-icons/io5";
-import LoadingAnimation from "../Loading/LoadingAnimation";
+import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import 'react-toastify/dist/ReactToastify.css';
 import { IoEllipsisVertical } from 'react-icons/io5'; // Add this import
 
@@ -48,6 +48,7 @@ const ProjectTable = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           getProjects
@@ -55,6 +56,8 @@ const ProjectTable = () => {
         setProjects(response.data.data); // Set the response directly
       } catch (error) {
         console.error("Error fetching project data:", error);
+      }finally {
+        setLoading(false);
       }
     };
     fetchProjects();

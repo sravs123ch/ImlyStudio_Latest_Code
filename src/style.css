@@ -269,3 +269,8 @@
 .date-picker .MuiInputBase-input {
   padding: 10px; /* Adjust padding if needed */
 }
+
+
+.button-login-colour{
+  @apply bg-[#632e0f] hover:bg-[#c95d1e] hover:text-[#301607] text-white
+}

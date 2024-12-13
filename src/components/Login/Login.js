@@ -11,8 +11,10 @@ import {
   COUNTRIES_API,
   GETALLSTORES_API,
   LOGIN,
-  STATES_API,
+  STATES_API,GETALLUSERSBYID_API,
+  
 } from "../../Constants/apiRoutes";
+import axios from "axios";
 import LoadingAnimation from "../Loading/LoadingAnimation";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -23,9 +25,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, setLogindata} = useAuth();
   const [isStoreDataLoading, setIsStoreDataLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isUserDataLoading, setIsUserDataLoading] = useState(false);
 
   // Fetch data from the APIs if not present in local storage
   const fetchApiData = async () => {
@@ -90,6 +93,54 @@ const Login = () => {
       setIsStoreDataLoading(false);
     }
   };
+
+  const fetchUserDetails = async () => {
+    setIsUserDataLoading(true);
+  
+    // Retrieve userID from localStorage
+    const userID = localStorage.getItem("UserID");
+  
+    if (!userID) {
+      console.error("UserID not found in local storage");
+      setIsUserDataLoading(false);
+      return null; // Return null if UserID is not found
+    }
+  
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage.");
+        setIsUserDataLoading(false);
+        return null; // Return null if token is missing
+      }
+  
+      const response = await fetch(`${GETALLUSERSBYID_API}/${userID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error fetching user details: ${response.statusText}`);
+      }
+  
+      const userData = await response.json();
+      const userDetails = userData?.user || null;
+  
+      // Store user data in localStorage
+      localStorage.setItem("userData", JSON.stringify(userDetails));
+  
+      return userDetails;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      return null;
+    } finally {
+      setIsUserDataLoading(false);
+    }
+  };
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -116,7 +167,7 @@ const Login = () => {
         login(token, roleID, userID);
 
         // Wait for both data fetching operations to complete
-        await Promise.all([fetchApiData(), fetchAndStoreStoresData()]);
+        await Promise.all([fetchApiData(), fetchAndStoreStoresData(),fetchUserDetails ()]);
 
         // Now that all data is loaded, navigate to the dashboard
         navigate("/dashboard");
@@ -135,7 +186,7 @@ const Login = () => {
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
-
+  
   return (
     <>
       <div className="flex min-h-full p-0 m-0 flex-1 bg-gray-100">
@@ -205,24 +256,7 @@ const Login = () => {
                       </span>
                     </div>
                   </div>
-                  {/* <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 pl-4"
-                      />
-                      <label
-                        htmlFor="remember-me"
-                        className="ml-3 block text-sm leading-6 text-gray-700"
-                      >
-                        Remember me
-                      </label>
-                    </div>
-
-                    <div className="text-sm leading-6"></div>
-                  </div> */}
+                 
                   <div className="flex items-center justify-between mb-4">
   {/* Remember Me */}
   <div className="flex items-center">
@@ -240,14 +274,14 @@ const Login = () => {
     </label>
   </div>
 
-{/* <div>
+<div>
   <a
     href="/forgot-password"
     className="text-sm text-gray-700 hover:underline focus:outline-none focus:underline focus:text-[#301607] px-2"
   >
     Forgot Password?
   </a>
-</div> */}
+</div>
 
 
 
@@ -258,7 +292,7 @@ const Login = () => {
                     <div className="flex justify-center mb-4">
                       <button
                         type="submit"
-                        className="flex w-full  justify-center rounded-md bg-[#632e0f] hover:bg-[#c95d1e] hover:text-[#301607] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        className="button-login-colour flex w-full  justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         onClick={(e) => handleLogin(e)}
                         // Disable the button when loading
                       >

@@ -190,8 +190,8 @@ export default function Navigation() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
   const location = useLocation(); // Initialize useLocation
-  const { logout } = useAuth();
-
+  const { logout  } = useAuth();
+  const [logindata, setLogindata] = useState(null);
   const handleSignOut = () => {
     logout();
     navigate("/");
@@ -212,43 +212,26 @@ export default function Navigation() {
     return acc;
   }, {});
 
-  const [userId, setUserId] = useState(null);
-  const [logindata, setLogindata] = useState(null);
   useEffect(() => {
-    // Retrieve the userId from localStorage
-    const storedUserId = localStorage.getItem("UserID");
-    // If a userId is found in localStorage, set it in the state
-    if (storedUserId) {
-      setUserId(storedUserId);
-    } else {
+    const getUserDetailsFromStorage = () => {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        return JSON.parse(userData); // Parse and return user data
+      } else {
+        console.error("No user data found in local storage");
+        return null;
+      }
+    };
+
+    // Fetch user details from localStorage and set to state
+    const storedUserData = getUserDetailsFromStorage();
+    if (storedUserData) {
+      setLogindata(storedUserData);
+      console.log("User details loaded:", storedUserData);
     }
   }, []);
-  useEffect(() => {
-    // Ensure userId is valid before making the API call
-    if (!userId) {
-      return;
-    }
+  
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in localStorage.");
-      return;
-    }
-
-    axios
-      .get(`${GETALLUSERSBYID_API}/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        setLogindata(response.data.user); // This will update logindata
-      })
-      .catch((err) => {
-        console.error("Error fetching user details:", err);
-      });
-  }, [userId]);
   return (
     <>
       <div>
@@ -559,10 +542,15 @@ export default function Navigation() {
                     <span className="sr-only">Open user menu</span>
                     <img
                       alt="Profile"
+                      // src={
+                      //   logindata?.ProfileImage ||
+                      //   "https://via.placeholder.com/150/000000/FFFFFF/?text=Unknown+User"
+                      // }
                       src={
-                        logindata?.ProfileImage ||
-                        "https://via.placeholder.com/150/000000/FFFFFF/?text=Unknown+User"
-                      }
+                        logindata?.ProfileImage
+                          ? logindata.ProfileImage
+                          : "https://via.placeholder.com/150/000000/FFFFFF/?text=Unknown+User"
+                      }                      
                       className="h-8 w-8 rounded-full bg-gray-50"
                     />
                     <span className="hidden lg:flex lg:items-center ml-2">

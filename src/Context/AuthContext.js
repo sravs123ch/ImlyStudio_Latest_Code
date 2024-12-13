@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [userRole, setUserRole] = useState(null);
-
+ 
   const [permissionsID, setPermissionsID] = useState([]);
 
   const [loading, setLoading] = useState(true);
