@@ -186,6 +186,13 @@ const Login = () => {
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
+  const handleForgotPassword = () => {
+    setIsLoading(true); // Start loading
+    setTimeout(() => {
+      navigate("/forgot-password"); // Navigate after a delay
+      setIsLoading(false); // Stop loading after navigation
+    }, 500); // Simulate a small loading delay (500ms)
+  };
   
   return (
     <>
@@ -276,7 +283,8 @@ const Login = () => {
 
 <div>
   <a
-    href="/forgot-password"
+    href="#"
+    onClick={handleForgotPassword} 
     className="text-sm text-gray-700 hover:underline focus:outline-none focus:underline focus:text-[#301607] px-2"
   >
     Forgot Password?

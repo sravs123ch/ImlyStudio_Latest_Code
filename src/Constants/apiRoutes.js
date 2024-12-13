@@ -111,6 +111,7 @@ export const ResetPassword =`${BASE_URL}/users/validateOtpAndUpdatePassword`;
 
 export const HolidaysList=`${BASE_URL}/holidayCalender/listHolidays`;
 
+export const createTenantSettings=`${BASE_URL}/Tenant/createTenantSettings`;
 
 
 export const TRIGGER_MAIL=`${BASE_URL}/orders/schedulePreDeliveryNotifications`;

@@ -31,54 +31,6 @@ const Login = () => {
       }
     }
   };
-
-  // const handleSendOtp = async () => {
-  //   setIsLoading(true);
-  //   if (!email) {
-  //     setError("Please enter your email");
-  //     return;
-  //   }
-  
-  //   setError("");
-  //   try {
-  //     const response = await axios.post(ForgotPassword, { Email: email });
-  //     if (response.status === 200 || response.status === 201) {
-  //       console.log("OTP sent successfully", response);
-  
-  //       // Show success toast
-  //       toast.success("OTP sent successfully!", {
-  //         position: "top-right",
-  //         autoClose: 3000, // 3 seconds
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //       });
-  
-  //       setShowOtpModal(true);
-  //       setTimer(300); // Start countdown
-  //     }
-  //   } catch (err) {
-  //     console.error("Error sending OTP:", err);
-  
-  //     // Show error toast
-  //     toast.error("Failed to send OTP. Please try again later.", {
-  //       position: "top-right",
-  //       autoClose: 3000, // 3 seconds
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //     });
-  
-  //     setError("Something went wrong. Please try again later.");
-  //   }finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-  
  
   const handleSendOtp = async () => {
     // Start loading
@@ -100,7 +52,7 @@ const Login = () => {
   
       if (response.status === 200 || response.status === 201) {
         console.log("OTP sent successfully", response);
-  
+        setIsLoading(true);
         // Show success toast
         toast.success("OTP sent successfully!", {
           position: "top-right",
@@ -143,7 +95,6 @@ const Login = () => {
   
       setError("Something went wrong. Please try again later.");
     } finally {
-      // Always stop loading when the function completes
       setIsLoading(false);
     }
   };
@@ -280,9 +231,6 @@ const handleSubmit = async () => {
     setIsLoading(false);
   }
 };
-
-
-
   const handleResendOtp = () => {
     setTimer(300);
     handleSendOtp();
