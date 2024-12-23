@@ -50,6 +50,7 @@ import Profile from "./components/Navigation/Profile";
 import Settings from "./components/Navigation/Settings";
 import ForgotPassword from "./components/Login/forgotpassword";
 import ResetPassword from "./components/Login/ResetPassword";
+import Fullscreenchatbox from "./components/AI/fullscreenchatbox";
 
 function App() {
   const location = useLocation();
@@ -85,6 +86,17 @@ function App() {
                                     requiredPermission={PERMISSIONS.VIEW_USERS}
                                   >
                                     <User />
+                                  </ProtectedRoute>
+                                }
+                              />
+                               <Route
+                                path="/aichatbox"
+                                element={
+                                  <ProtectedRoute
+                                    // allowedRoles={[1]}
+                                    requiredPermission={PERMISSIONS.VIEW_USERS}
+                                  >
+                                    <Fullscreenchatbox />
                                   </ProtectedRoute>
                                 }
                               />

@@ -163,8 +163,10 @@ const Login = () => {
         const decodedToken = jwtDecode(token);
         const roleID = decodedToken.RoleID;
         const userID = decodedToken.UserID;
+        const TenantID=decodedToken.TenantID;
 
         localStorage.setItem("UserID", userID);
+        localStorage.setItem("TenantID", TenantID);
 
         login(token, roleID, userID);
 
@@ -172,7 +174,7 @@ const Login = () => {
         await Promise.all([
           fetchApiData(),
           fetchAndStoreStoresData(),
-          fetchUserDetails(),
+          // fetchUserDetails(),
         ]);
 
         // Now that all data is loaded, navigate to the dashboard

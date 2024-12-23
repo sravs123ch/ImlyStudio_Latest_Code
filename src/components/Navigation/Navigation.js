@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext,useMemo  } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -55,12 +55,14 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import logo from "../../assests/Images/imly-logo-new.jpg";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useNavigate and useLocation
+import {Link,useNavigate, useLocation } from "react-router-dom"; // Import useNavigate and useLocation
 
 import { useAuth } from "../../Context/AuthContext";
 import { PERMISSIONS } from "../../Constants/permissions";
 import axios from "axios";
 import { GETALLUSERSBYID_API } from "../../Constants/apiRoutes";
+import { SiOpenai } from "react-icons/si"; 
+
 const allNavigation = {
   Service: [
     {
@@ -173,6 +175,14 @@ const allNavigation = {
       iconFilled: CalendarIconSolid,
       permission: PERMISSIONS.ACCESS_STORES,
     },
+    {
+      name: "AI ChatBox",
+      href: "/aichatbox",
+      icon: SiOpenai, // ChatGPT/OpenAI Icon
+      iconFilled: SiOpenai, // Use same icon as filled version or replace with custom
+      permission: PERMISSIONS.ACCESS_STORES,
+    },
+    
   ],
 };
 
@@ -190,7 +200,8 @@ export default function Navigation() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
   const location = useLocation(); // Initialize useLocation
-  const { logout  } = useAuth();
+  // const { logout  } = useAuth();
+  const { userData, logout } = useAuth();
   const [logindata, setLogindata] = useState(null);
   const handleSignOut = () => {
     logout();
@@ -202,6 +213,35 @@ export default function Navigation() {
     navigate("/Settings");
     // Handle settings logic here, such as opening a settings modal
   };
+  // const navigation = Object.keys(allNavigation).reduce((acc, key) => {
+  //   const filteredItems = allNavigation[key].filter((item) =>
+  //     permissionsID.includes(item.permission)
+  //   );
+  //   if (filteredItems.length > 0) {
+  //     acc[key] = filteredItems;
+  //   }
+  //   return acc;
+  // }, {});
+
+  // useEffect(() => {
+  //   const getUserDetailsFromStorage = () => {
+  //     const userData = localStorage.getItem("userData");
+  //     if (userData) {
+  //       return JSON.parse(userData); // Parse and return user data
+  //     } else {
+  //       console.error("No user data found in local storage");
+  //       return null;
+  //     }
+  //   };
+
+  //   // Fetch user details from localStorage and set to state
+  //   const storedUserData = getUserDetailsFromStorage();
+  //   if (storedUserData) {
+  //     setLogindata(storedUserData);
+  //     console.log("User details loaded:", storedUserData);
+  //   }
+  // }, []);
+
   const navigation = Object.keys(allNavigation).reduce((acc, key) => {
     const filteredItems = allNavigation[key].filter((item) =>
       permissionsID.includes(item.permission)
@@ -212,26 +252,57 @@ export default function Navigation() {
     return acc;
   }, {});
 
-  useEffect(() => {
-    const getUserDetailsFromStorage = () => {
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        return JSON.parse(userData); // Parse and return user data
-      } else {
-        console.error("No user data found in local storage");
-        return null;
-      }
-    };
+  const [userId, setUserId] = useState(null);
 
-    // Fetch user details from localStorage and set to state
-    const storedUserData = getUserDetailsFromStorage();
-    if (storedUserData) {
-      setLogindata(storedUserData);
-      console.log("User details loaded:", storedUserData);
+  useEffect(() => {
+    // Retrieve the userId from localStorage
+    const storedUserId = localStorage.getItem("UserID");
+    // If a userId is found in localStorage, set it in the state
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
     }
   }, []);
-  
+  useEffect(() => {
+    // Ensure userId is valid before making the API call
+    if (!userId) {
+      return;
+    }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found in localStorage.");
+      return;
+    }
+
+    axios
+      .get(`${GETALLUSERSBYID_API}/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        setLogindata(response.data.user); // This will update logindata
+      })
+      .catch((err) => {
+        console.error("Error fetching user details:", err);
+      });
+  }, [userId]);
+
+   // Memoize navigation to avoid unnecessary recalculations
+   const memonavigation = useMemo(() => {
+    return Object.keys(allNavigation).reduce((acc, key) => {
+      const filteredItems = allNavigation[key].filter((item) =>
+        permissionsID.includes(item.permission)
+      );
+      if (filteredItems.length > 0) {
+        acc[key] = filteredItems;
+      }
+      return acc;
+    }, {});
+  }, [permissionsID]); 
+  
   return (
     <>
       <div>
@@ -282,7 +353,7 @@ export default function Navigation() {
                   <hr className="border-gray-300" />
                   <nav className="flex flex-col mt-2 flex-1 w-full">
                     <ul role="list" className="space-y-4 w-full">
-                      {Object.entries(navigation).map(([key, items]) => (
+                      {Object.entries(memonavigation).map(([key, items]) => (
                         <li key={key} className="w-full">
                           <h3 className="text-sm font-bold text-gray-700 mb-2 text-left pl-4">
                             {key.replace(/([A-Z])/g, " $1")}
@@ -392,7 +463,7 @@ export default function Navigation() {
 
             <nav className="flex flex-col mt-2 flex-1 w-full">
               <ul role="list" className="space-y-4 w-full">
-                {Object.entries(navigation).map(([key, items]) => (
+                {Object.entries(memonavigation).map(([key, items]) => (
                   <li key={key} className="w-full">
                     <h3 className="text-sm font-bold text-gray-700 mb-2 text-left pl-4">
                       {key.replace(/([A-Z])/g, " $1")}
@@ -598,3 +669,102 @@ export default function Navigation() {
     </>
   );
 }
+
+
+
+// export default function Navigation() {
+//   const { isLoggedIn, permissionsID, logout } = useAuth();
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+//   const handleSignOut = () => {
+//     logout();
+//     navigate("/");
+//   };
+
+//   const navigation = useMemo(() => {
+//     return Object.keys(allNavigation).reduce((acc, key) => {
+//       const filteredItems = allNavigation[key].filter((item) =>
+//         permissionsID.includes(item.permission)
+//       );
+//       if (filteredItems.length > 0) acc[key] = filteredItems;
+//       return acc;
+//     }, {});
+//   }, [permissionsID]);
+
+//   const NavigationMenu = ({ navigation }) => (
+//     <ul role="list" className="space-y-4 w-full">
+//       {Object.entries(navigation).map(([key, items]) => (
+//         <li key={key} className="w-full">
+//           <h3 className="text-sm font-bold text-gray-700 mb-2 text-left pl-4">
+//             {key.replace(/([A-Z])/g, " $1")}
+//           </h3>
+//           <ul role="list" className="space-y-1 w-full">
+//             {items.map((item) => {
+//               const isActive = location.pathname.startsWith(item.href);
+//               return (
+//                 <li key={item.name} className="w-full">
+//                   <Link
+//                     to={item.href}
+//                     onClick={() => setSidebarOpen(false)}
+//                     className={`group flex items-center p-2 text-xs font-medium w-full pl-6 rounded-md ${
+//                       isActive
+//                         ? "bg-custom-darkblue text-white"
+//                         : "text-gray-900 hover:bg-custom-lightblue"
+//                     }`}
+//                   >
+//                     <div className="flex items-center">
+//                       {isActive ? (
+//                         <item.iconFilled className="h-4 w-4 mr-2" />
+//                       ) : (
+//                         <item.icon className="h-4 w-4 mr-2" />
+//                       )}
+//                       {item.name}
+//                     </div>
+//                   </Link>
+//                 </li>
+//               );
+//             })}
+//           </ul>
+//         </li>
+//       ))}
+//     </ul>
+//   );
+
+//   return (
+//     <>
+//       {/* Mobile Sidebar */}
+//       <Dialog open={sidebarOpen} onClose={() => setSidebarOpen(false)} className="lg:hidden">
+//         <DialogBackdrop className="fixed inset-0 bg-gray-900/80" />
+//         <DialogPanel className="fixed inset-0 flex w-full max-w-xs transform">
+//           <button onClick={() => setSidebarOpen(false)} className="absolute top-4 left-4">
+//             <XMarkIcon className="h-6 w-6 text-white" />
+//           </button>
+//           <div className="flex flex-col bg-white p-4">
+//             <NavigationMenu navigation={navigation} />
+//           </div>
+//         </DialogPanel>
+//       </Dialog>
+
+//       {/* Desktop Sidebar */}
+//       <div className="hidden lg:flex lg:w-60 lg:flex-col bg-white shadow-md">
+//         <div className="flex flex-col h-full px-6 pb-4">
+//           <img alt="Logo" src={logo} className="h-18 w-32 mx-auto" />
+//           <NavigationMenu navigation={navigation} />
+//           <button
+//             onClick={() => navigate("/Settings")}
+//             className={`mt-auto flex items-center p-2 text-xs font-medium w-full ${
+//               location.pathname.startsWith("/Settings")
+//                 ? "bg-custom-darkblue text-white"
+//                 : "hover:bg-custom-lightblue"
+//             }`}
+//           >
+//             <Cog6ToothIcon className="h-4 w-4 mr-2" />
+//             Settings
+//           </button>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }

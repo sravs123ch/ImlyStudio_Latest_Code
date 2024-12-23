@@ -103,7 +103,7 @@ export const TaskStatusUpdate=`${BASE_URL}/orderhistory/updateProgressStatus`;
 
 export const ChatBox=`${BASE_URL}/auth/chat`;
 export const UpdatePassword =`${BASE_URL}/users/updatePassword`;
-export const ForgotPassword =`${BASE_URL}/users/ForgotPassword`;
+export const ForgotPassword =`${BASE_URL}/users/forgotPassword`;
 
 export const VerifyOTP =`${BASE_URL}/users/validateOtp`;
 
@@ -112,7 +112,8 @@ export const ResetPassword =`${BASE_URL}/users/validateOtpAndUpdatePassword`;
 export const HolidaysList=`${BASE_URL}/holidayCalender/listHolidays`;
 
 export const createTenantSettings=`${BASE_URL}/Tenant/createTenantSettings`;
-
+export const updateTenantSettings=`${BASE_URL}/Tenant/updateTenantSettings`;
+export const getTenantSettings=`${BASE_URL}/Tenant/getTenantSettings`;
 
 export const TRIGGER_MAIL=`${BASE_URL}/orders/schedulePreDeliveryNotifications`;
 

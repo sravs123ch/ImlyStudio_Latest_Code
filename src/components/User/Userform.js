@@ -447,10 +447,12 @@ function Userform() {
     // }
     if (!formData.Email) {
       newErrors.EmailError = "Email is required.";
-    } else {
+    } 
+    else {
       // Additional check to ensure email ends with @gmail.com
-      if (!formData.Email.endsWith("@gmail.com")) {
-        newErrors.EmailError = "Email must end with '@gmail.com'.";
+      if (!formData.Email.includes("@")) return "Email must include '@'.";
+      if (!formData.Email.endsWith(".com")) {
+        newErrors.EmailError = "Email must end with '.com'.";
       }
     }
     if (!formData.CountryID) {

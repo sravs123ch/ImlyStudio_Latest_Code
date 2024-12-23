@@ -277,10 +277,10 @@ function StoreForm() {
     if (!emailPattern.test(email)) {
       return "Please enter a valid email address.";
     }
-  
+    if (!email.includes("@")) return "Email must include '@'.";
     // Check if the email ends with "@gmail.com"
     if (!email.endsWith("@gmail.com")) {
-      return "Email must end with '@gmail.com'.";
+      return "Email must end with '.com'.";
     }
   
     // Return null if no errors

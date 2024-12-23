@@ -5,7 +5,7 @@ import { useStatusColors } from "../../Context/StatusColorsContext";
 
 const StatusBadge = ({ status }) => {
   const statusColors = useStatusColors(); // Get colors from the context
-
+console.log(" statusColors ", statusColors );
   // Extract the base status dynamically, ignoring the "Phase X" or "R<number>" part
   const getBaseStatus = (status) => {
     // Remove the phase or revision number (e.g., "Phase 3", "R4")
@@ -19,7 +19,7 @@ const StatusBadge = ({ status }) => {
   const statusColor = statusColors[baseStatus] || "#000"; // Default to black if not found
 
   // Debugging logs
-
+console.log(" useStatusColors",statusColor);
 
   return (
     <span

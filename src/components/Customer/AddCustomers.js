@@ -981,8 +981,8 @@ function AddCustomers() {
     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       return "Invalid email format.";
     }
-    if (!email.endsWith("@gmail.com")) {
-      return "Email must end with '@gmail.com'.";
+    if (!email.endsWith(".com")) {
+      return "Email must end with '.com'.";
     }  
     return null;
   };
